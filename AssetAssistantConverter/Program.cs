@@ -30,18 +30,34 @@ namespace Example
 
             if (Path.GetExtension(ofd.FileName) == ".bin")
             {
-                string destFileName = outputDir + "\\" + Path.GetFileNameWithoutExtension(ofd.FileName) + ".json";
-                string json = JsonConvert.SerializeObject(AssetBundleDownloadManifest.Load(ofd.FileName), Formatting.Indented);
-                Directory.CreateDirectory(outputDir);
-                File.WriteAllText(destFileName, json);
+                try
+                {
+                    string destFileName = outputDir + "\\" + Path.GetFileNameWithoutExtension(ofd.FileName) + ".json";
+                    string json = JsonConvert.SerializeObject(AssetBundleDownloadManifest.Load(ofd.FileName), Formatting.Indented);
+                    Directory.CreateDirectory(outputDir);
+                    File.WriteAllText(destFileName, json);
+                    MessageBox.Show("Json placed in Output folder.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else if (Path.GetExtension(ofd.FileName) == ".json")
             {
-                string destFileName = outputDir + "\\" + Path.GetFileNameWithoutExtension(ofd.FileName) + ".bin";
-                string json = File.ReadAllText(ofd.FileName);
-                AssetBundleDownloadManifest abdm = JsonConvert.DeserializeObject<AssetBundleDownloadManifest>(json);
-                Directory.CreateDirectory(outputDir);
-                abdm.Save(destFileName);
+                try
+                {
+                    string destFileName = outputDir + "\\" + Path.GetFileNameWithoutExtension(ofd.FileName) + ".bin";
+                    string json = File.ReadAllText(ofd.FileName);
+                    AssetBundleDownloadManifest abdm = JsonConvert.DeserializeObject<AssetBundleDownloadManifest>(json);
+                    Directory.CreateDirectory(outputDir);
+                    abdm.Save(destFileName);
+                    MessageBox.Show("AssetAssistant-object placed in Output folder.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
     }
