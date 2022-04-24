@@ -1,10 +1,7 @@
 using Newtonsoft.Json;
 using SmartPoint.AssetAssistant;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Example
@@ -29,22 +26,22 @@ namespace Example
 
             if (ofd.ShowDialog() != DialogResult.OK) return;
 
-            string outputPath = Environment.CurrentDirectory + "\\Output";
+            string outputDir = Environment.CurrentDirectory + "\\Output";
 
             if (Path.GetExtension(ofd.FileName) == ".bin")
             {
-                string destinationFileName = Environment.CurrentDirectory + "\\Output\\" + Path.GetFileNameWithoutExtension(ofd.FileName) + ".json";
-                string jsonString = JsonConvert.SerializeObject(AssetBundleDownloadManifest.Load(ofd.FileName), Formatting.Indented);
-                Directory.CreateDirectory(outputPath);
-                File.WriteAllText(destinationFileName, jsonString);
+                string destFileName = outputDir + "\\" + Path.GetFileNameWithoutExtension(ofd.FileName) + ".json";
+                string json = JsonConvert.SerializeObject(AssetBundleDownloadManifest.Load(ofd.FileName), Formatting.Indented);
+                Directory.CreateDirectory(outputDir);
+                File.WriteAllText(destFileName, json);
             }
             else if (Path.GetExtension(ofd.FileName) == ".json")
             {
-                string destinationFileName = Environment.CurrentDirectory + "\\Output\\" + Path.GetFileNameWithoutExtension(ofd.FileName) + ".bin";
-                string jsonString = File.ReadAllText(ofd.FileName);
-                AssetBundleDownloadManifest abdm = JsonConvert.DeserializeObject<AssetBundleDownloadManifest>(jsonString);
-                Directory.CreateDirectory(outputPath);
-                abdm.Save(destinationFileName);
+                string destFileName = outputDir + "\\" + Path.GetFileNameWithoutExtension(ofd.FileName) + ".bin";
+                string json = File.ReadAllText(ofd.FileName);
+                AssetBundleDownloadManifest abdm = JsonConvert.DeserializeObject<AssetBundleDownloadManifest>(json);
+                Directory.CreateDirectory(outputDir);
+                abdm.Save(destFileName);
             }
         }
     }
