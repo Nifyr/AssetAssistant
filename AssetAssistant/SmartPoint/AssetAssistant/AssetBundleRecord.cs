@@ -21,6 +21,8 @@ namespace SmartPoint.AssetAssistant
         [NonSerialized]
         public bool isSimulation;
 
+        public AssetBundleRecord() { }
+
         public AssetBundleRecord(string _projectName, string _assetBundleName)
         {
             projectName = _projectName;

@@ -1,4 +1,5 @@
-﻿using SmartPoint.AssetAssistant.UnityExtensions;
+﻿using Newtonsoft.Json;
+using SmartPoint.AssetAssistant.UnityExtensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,37 +10,42 @@ using UnityEngine.Networking;
 namespace SmartPoint.AssetAssistant
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class AssetBundleDownloadManifest
     {
         private const int currentVersion = 6;
 
         [SerializeField]
+        [JsonProperty]
         private int _version;
 
         [SerializeField]
+        [JsonProperty]
         private string _projectName;
 
         [SerializeField]
+        [JsonProperty]
         private AssetBundleRecord[] _records;
-     
+
         [SerializeField]
+        [JsonProperty]
         private string[] _assetBundleNamesWithVariant;
-       
+
         [NonSerialized]
         private Dictionary<string, HashSet<string>> _variantMap;
-       
+
         [NonSerialized]
         private Dictionary<string, AssetBundleRecord> _recordLookupFromAssetBundleName;
-      
+
         [NonSerialized]
         private Dictionary<string, AssetBundleRecord> _recordLookupFromAssetPath;
-      
+
         [NonSerialized]
         private bool _dirty;
-       
+
         [NonSerialized]
         private string _path;
-        
+
         [NonSerialized]
         private AssetBundleDownloadManifest _latest;
 
@@ -75,11 +81,11 @@ namespace SmartPoint.AssetAssistant
 
         public long totalSize
         {
-            get 
+            get
             {
                 long size = 0;
-                foreach (var r in _recordLookupFromAssetBundleName)
-                    size += r.Value.size;
+                foreach (var r in _records)
+                    size += r.size;
                 return size;
             }
         }
@@ -89,15 +95,16 @@ namespace SmartPoint.AssetAssistant
             get
             {
                 long size = 0;
-                foreach (var r in _recordLookupFromAssetBundleName)
-                    if(r.Value.isBeginInstalled) size += r.Value.size;
+                foreach (var r in _records)
+                    if (r.isBeginInstalled) size += r.size;
                 return size;
             }
         }
 
         public int installCount
         {
-            get {
+            get
+            {
                 int cnt = 0;
                 foreach (var r in _records) cnt += r.isBeginInstalled ? 1 : 0;
                 return cnt;
@@ -106,9 +113,11 @@ namespace SmartPoint.AssetAssistant
 
         public AssetBundleRecord[] installAssetBundleRecords
         {
-            get {
+            get
+            {
                 int latest = 0;
-                foreach (var r in records) {
+                foreach (var r in records)
+                {
                     if (r.latest != null) latest++;
                 }
                 //TODO
@@ -116,7 +125,8 @@ namespace SmartPoint.AssetAssistant
             }
         }
 
-        public static AssetBundleDownloadManifest Load(byte[] data) {
+        public static AssetBundleDownloadManifest Load(byte[] data)
+        {
             return (AssetBundleDownloadManifest)new MemoryStream(data).DeserializeBinaryFormatter();
         }
 
@@ -127,20 +137,24 @@ namespace SmartPoint.AssetAssistant
             {
                 var web = UnityWebRequest.Get(path);
                 web.SendWebRequest();
-                while (!web.isNetworkError && !web.isHttpError) {
-                    if (web.isDone) {
+                while (!web.isNetworkError && !web.isHttpError)
+                {
+                    if (web.isDone)
+                    {
                         ret = Load(web.downloadHandler.data);
                     }
                 }
             }
-            else 
+            else
             {
-                if (File.Exists(path)) {
+                if (File.Exists(path))
+                {
                     ret = (AssetBundleDownloadManifest)new FileStream(path, FileMode.Open).DeserializeBinaryFormatter();
                 }
             }
             if (ret._version != 6) ret.Clear();
-            if (isSimulation) { 
+            if (isSimulation)
+            {
                 //TODO
             }
             ret.BuildLookupTables();
@@ -162,8 +176,10 @@ namespace SmartPoint.AssetAssistant
             other.GetAllAssetBundles();
             other.GetAllAssetBundlesWithVariant();
 
-            if (callback != null) {
-                foreach (var bund in other.GetAllAssetBundles()) {
+            if (callback != null)
+            {
+                foreach (var bund in other.GetAllAssetBundles())
+                {
                     var hash = other.GetAssetBundleHash(bund);
                     RecordedHash.Parse(hash.ToString());
                 }
@@ -172,13 +188,7 @@ namespace SmartPoint.AssetAssistant
 
         public void Save(string path)
         {
-            if (_dirty) {
-                if(!Directory.Exists(path.RemoveEnd(".bin"))){
-                    Directory.CreateDirectory(path.RemoveEnd(".bin"));
-                }
-                new FileStream(path, FileMode.Create).SerializeBinaryFormatter(this);
-            }
-            _dirty = false;
+            new FileStream(path, FileMode.Create).SerializeBinaryFormatter(this);
         }
 
         public AssetBundleDownloadManifest()
@@ -206,7 +216,7 @@ namespace SmartPoint.AssetAssistant
 
         }
 
-        public AssetBundleRecord AddRecord(string projectName, string assetBundleName) => (AssetBundleRecord) null;
+        public AssetBundleRecord AddRecord(string projectName, string assetBundleName) => (AssetBundleRecord)null;
 
         public void Clear()
         {
@@ -220,7 +230,8 @@ namespace SmartPoint.AssetAssistant
 
         public bool IsExist(string assetBundleName) => _recordLookupFromAssetBundleName.ContainsKey(assetBundleName);
 
-        public string[] GetExists(string[] assetBundleNames) {
+        public string[] GetExists(string[] assetBundleNames)
+        {
             return null;
         }
 
@@ -234,23 +245,26 @@ namespace SmartPoint.AssetAssistant
 
         }
 
-        public string[] GetAllAssetBundleNames() => (string[]) null;
+        public string[] GetAllAssetBundleNames() => (string[])null;
 
-        public string[] GetAssetBundleNamesWithVariant() => (string[]) null;
+        public string[] GetAssetBundleNamesWithVariant() => (string[])null;
 
-        public string FindMatchAssetBundleNameWithVariants(string assetBundleName, string[] variants) => (string) null;
+        public string FindMatchAssetBundleNameWithVariants(string assetBundleName, string[] variants) => (string)null;
 
-        public string GetAssetBundleNameAtPath(string path) {
+        public string GetAssetBundleNameAtPath(string path)
+        {
             AssetBundleRecord rec = null;
             _recordLookupFromAssetPath.TryGetValue(path, out rec);
             string ret = string.Empty;
-            if (rec != null) {
+            if (rec != null)
+            {
                 ret = rec.assetBundleName;
             }
             return ret;
         }
 
-        public AssetBundleRecord GetAssetBundleRecord(string assetBundleName) {
+        public AssetBundleRecord GetAssetBundleRecord(string assetBundleName)
+        {
             AssetBundleRecord rec = null;
             _recordLookupFromAssetBundleName.TryGetValue(assetBundleName, out rec);
             return rec;
@@ -266,12 +280,13 @@ namespace SmartPoint.AssetAssistant
 
             recList.Add(rec);
 
-            foreach (var r in rec.allDependencies) {
+            foreach (var r in rec.allDependencies)
+            {
                 rec = null;
                 _recordLookupFromAssetBundleName.TryGetValue(r, out rec);
                 recList.Add(rec);
             }
-            
+
             return recList.ToArray();
         }
     }
