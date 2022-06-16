@@ -4,7 +4,7 @@ using System;
 namespace SmartPoint.AssetAssistant
 {
     [Serializable]
-    public class AssetBundleRecord
+    public class AssetBundleRecord : ICloneable, IEquatable<AssetBundleRecord>
     {
         public string projectName;
         public string assetBundleName;
@@ -28,6 +28,7 @@ namespace SmartPoint.AssetAssistant
             projectName = _projectName;
             assetBundleName = _assetBundleName;
             allDependencies = ArrayHelper.Empty<string>();
+            assetPaths = ArrayHelper.Empty<string>();
             var prox = Sequencer.editorProxy;
             //TODO
         }
@@ -38,11 +39,21 @@ namespace SmartPoint.AssetAssistant
             assetBundleName = other.assetBundleName;
             hash = other.hash;
             lastWriteTime = other.lastWriteTime;
-            allDependencies = other.allDependencies;
-            assetPaths = other.assetPaths;
+            allDependencies = (string[])other.allDependencies.Clone();
+            assetPaths = (string[])other.assetPaths.Clone();
             size = other.size;
             isStreamingSceneAssetBundle = other.isStreamingSceneAssetBundle;
             isSimulation = other.isSimulation;
+        }
+
+        public object Clone()
+        {
+            return new AssetBundleRecord(this);
+        }
+
+        public bool Equals(AssetBundleRecord other)
+        {
+            return assetBundleName == other.assetBundleName;
         }
     }
 }
