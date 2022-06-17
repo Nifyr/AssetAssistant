@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace SmartPoint.AssetAssistant
 {
@@ -250,6 +249,8 @@ namespace SmartPoint.AssetAssistant
             AssetBundleDownloadManifest ret = null;
             if (path.IsUrl())
             {
+                throw new NotImplementedException("URLs are not supported.");
+                /*
                 var web = UnityWebRequest.Get(path);
                 web.SendWebRequest();
                 while (!web.isNetworkError && !web.isHttpError)
@@ -259,6 +260,7 @@ namespace SmartPoint.AssetAssistant
                         ret = Load(web.downloadHandler.data);
                     }
                 }
+                */
             }
             else
             {
